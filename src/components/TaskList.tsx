@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import "../styles/tasklist.scss";
 
-import { FiTrash, FiCheckSquare } from "react-icons/fi";
+import { FiTrash, FiCheckSquare, FiDelete } from "react-icons/fi";
 
 interface Task {
   id: number;
@@ -13,10 +13,12 @@ interface Task {
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [selectedItemsLabel, setSelectedItemsLabel] =
+    useState("Select all items");
 
   function handleCreateNewTask() {
     if (!newTaskTitle) {
-      return;
+      return window.alert("Insira um titulo válido!");
     }
 
     const newTask = {
@@ -24,12 +26,13 @@ export function TaskList() {
       title: newTaskTitle,
       isComplete: false,
     };
+
     setTasks([...tasks, newTask]);
     setNewTaskTitle("");
   }
 
   function handleToggleTaskCompletion(id: number) {
-    const taskIsChecked = tasks.map((task) =>
+    const isComplete = tasks.map((task) =>
       task.id === id
         ? {
             ...task,
@@ -38,12 +41,38 @@ export function TaskList() {
         : task
     );
 
-    setTasks(taskIsChecked);
+    setTasks(isComplete);
   }
 
   function handleRemoveTask(id: number) {
     const removeTask = tasks.filter((task) => task.id !== id);
     setTasks(removeTask);
+  }
+
+  function handleDeleteSelectedItems() {
+    const selectedItems = tasks.filter((task) => task.isComplete === false);
+    setTasks(selectedItems);
+  }
+
+  function handleSelectAllItems() {
+    if (!tasks.length) {
+      return;
+    }
+    if (selectedItemsLabel === "Select all items") {
+      setSelectedItemsLabel("Deselect group");
+    } else if (selectedItemsLabel === "Deselect group") {
+      setSelectedItemsLabel("Select all items");
+    }
+
+    const selectedItems = tasks.map((task) =>
+      task.isComplete === false || true
+        ? {
+            ...task,
+            isComplete: !task.isComplete,
+          }
+        : task
+    );
+    setTasks(selectedItems);
   }
 
   return (
@@ -67,6 +96,17 @@ export function TaskList() {
           </button>
         </div>
       </header>
+
+      <section className="tool-bar">
+        <div className="tool-selectItems">
+          <input type="checkbox" id="teste" onClick={handleSelectAllItems} />
+          <label htmlFor="teste">{selectedItemsLabel}</label>
+        </div>
+        <button type="submit" onClick={handleDeleteSelectedItems}>
+          <FiDelete size={16} color="#d33838" />
+          Delete selected items
+        </button>
+      </section>
 
       <main>
         <ul>
